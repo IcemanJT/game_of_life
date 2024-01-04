@@ -10,8 +10,26 @@ template<class N>
 class GameOfLife {
 private:
 
+    CursorList<CursorList<bool>>** board;
 
 public:
 
+    GameOfLife(int size);
+
+    ~GameOfLife();
+
+    bool CheckNeighbours(int x, int y);
+
+    void NextGeneration();
+
+    void PrintBoard();
+
+    void SetCell(int x, int y, bool value);
+
+    bool GetCell(int x, int y);
+    
+
 };
+
+
 #endif //GAMEOFLIFE_HPP
