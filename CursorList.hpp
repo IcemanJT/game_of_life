@@ -1,4 +1,4 @@
-// Creator: Jeremi Toroj
+ // Creator: Jeremi Toroj
 // Date: 2.01.2024
 
 #ifndef ZESTAW4_CURSORLIST_HPP
@@ -15,7 +15,8 @@ class CursorList
 private:
     struct Node
     {
-        T data;
+        T x;
+        T y;
         int next;
     };
 
@@ -26,7 +27,7 @@ private:
     int current_size;
     int capacity;
 
-    T erase(int i);
+    void erase(int i);
 
     template <class U>
     void insert(int i, U &&x);
@@ -35,28 +36,24 @@ public:
     explicit CursorList(int cap = 100);
 
     template <class U>
-    void push_front(U &&x);
+    void push_front(U &&x, U &&y);
 
     template <class U>
-    void push_back(U &&x);
+    void push_back(U &&x, U &&y);
 
-    T pop_front();
-    T pop_back();
+    void pop_front();
+    void pop_back();
 
     int size();
     bool empty();
     void clear();
-    int find(const T &x);
 
-    int remove(const T &x);
+    int find(const T &x, const T &y);
+
+    int remove(const T &x, const T &y);
 
     int allocate();
     void deallocate(int i);
-
-    int prevNode_finder(int i);
-
-    template <class U>
-    bool replace(const T &x, U &&y);
 
     void printList();
 
@@ -81,28 +78,28 @@ CursorList<T>::CursorList(int cap) : data(new Node[cap]), head(-1), tail(-1), sp
 
 template <class T>
 template <class U>
-void CursorList<T>::push_front(U &&x)
+void CursorList<T>::push_front(U &&x, U &&y)
 {
-    insert(head, std::forward<U>(x));
+    insert(head, std::forward<U>(x, y));
 }
 
 template <class T>
-T CursorList<T>::pop_front()
+void CursorList<T>::pop_front()
 {
-    return erase(head);
+    erase(head);
 }
 
 template <class T>
 template <class U>
-void CursorList<T>::push_back(U &&x)
+void CursorList<T>::push_back(U &&x, U &&y)
 {
-    insert(spare, std::forward<U>(x));
+    insert(spare, std::forward<U>(x, y));
 }
 
 template <class T>
-T CursorList<T>::pop_back()
+void CursorList<T>::pop_back()
 {
-    return erase(tail);
+    erase(tail);
 }
 
 template <class T>
@@ -129,14 +126,14 @@ void CursorList<T>::clear()
 }
 
 template <class T>
-int CursorList<T>::find(const T &x)
+int CursorList<T>::find(const T &x, const T &y)
 {
     int idx = head;
     int count = 0;
 
     while (count < size())
     {
-        if (data[idx].data == x)
+        if (data[idx].x == x && data[idx].y == y)
         {
             return idx;
         }
@@ -148,7 +145,7 @@ int CursorList<T>::find(const T &x)
 }
 
 template <class T>
-T CursorList<T>::erase(int i)
+void CursorList<T>::erase(int i)
 {
     if (empty())
     {
@@ -162,7 +159,7 @@ T CursorList<T>::erase(int i)
     {
         element = data[head].data;
         deallocate(i);
-        return element;
+        return;
     }
 
     if (i == head)
@@ -170,7 +167,7 @@ T CursorList<T>::erase(int i)
         element = data[head].data;
         head = data[head].next;
         deallocate(i);
-        return element;
+        return;
     }
 
     if (i == tail)
@@ -185,11 +182,10 @@ T CursorList<T>::erase(int i)
         tail = idx;
         data[tail].next = -1;
         deallocate(i);
-
-        return element;
+        return;
     }
 
-    return -1;
+    throw std::runtime_error("Something went wrong.");
 }
 
 template <class T>
@@ -231,34 +227,21 @@ void CursorList<T>::insert(int i, U &&x)
 
         return;
     }
-    else
-    {
-        int newIdx = allocate();
-        data[newIdx].data = std::forward<U>(x);
-        int prevNode = prevNode_finder(i);
-        data[newIdx].next = data[prevNode].next;
-        data[prevNode].next = newIdx;
-
-        return;
-    }
 }
 
 template <class T>
-int CursorList<T>::remove(const T &x)
+int CursorList<T>::remove(const T &x, const T &y)
 {
-    int count = 0;
-
     for (int idx = 0; idx < size(); ++idx)
     {
-        if (data[idx] == x)
+        if (data[idx].x == x && data[idx].y == y)
         {
-            erase(idx); // erase moves element data[idx-1] to data[idx]
-            --idx;      // decrement so remove won't skip element behind idx
-            ++count;
+            erase(idx);
+            return 0;
         }
     }
 
-    return count;
+    return -1;
 }
 
 template <class T>
@@ -277,41 +260,6 @@ void CursorList<T>::deallocate(int i)
 }
 
 template <class T>
-int CursorList<T>::prevNode_finder(int i)
-{
-    if (i == head || i < 0 || i >= capacity)
-    {
-        return -1;
-    }
-
-    int node_before_node_i = head;
-    int counter = 0;
-
-    while (counter < i - 1)
-    {
-        node_before_node_i = data[node_before_node_i].next;
-        ++counter;
-    }
-
-    return node_before_node_i;
-}
-
-template <class T>
-template <class U>
-bool CursorList<T>::replace(const T &x, U &&y)
-{
-    int idx = find(x);
-
-    if (idx != -1)
-    {
-        data[idx].data = std::forward<U>(y);
-        return true;
-    }
-
-    return false;
-}
-
-template <class T>
 void CursorList<T>::printList()
 {
     if (empty())
@@ -319,6 +267,12 @@ void CursorList<T>::printList()
         std::cout << "List is empty." << std::endl;
         return;
     }
+}
+
+template <class T>
+CursorList<T>::~CursorList()
+{
+    delete[] data;
 }
 
 #endif // ZESTAW4_CURSORLIST_HPP
