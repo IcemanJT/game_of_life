@@ -32,7 +32,9 @@ public:
 
     void PrintBoard();
 
-    void Inicial_state(std::vector<Pair> &start_cells);
+    void Initial_state(std::vector<Pair> &start_cells);
+
+    std::vector<std::vector<bool>> getBoard() { return board; }
 };
 
 inline GameOfLife::GameOfLife(int size)
@@ -181,7 +183,7 @@ inline void GameOfLife::PrintBoard()
     std::cout << "######" << std::endl;
 }
 
-inline void GameOfLife::Inicial_state(std::vector<Pair> &start_cells)
+inline void GameOfLife::Initial_state(std::vector<Pair> &start_cells)
 {
     int v_size = start_cells.size();
     for (int i = 0; i < v_size; i++)
