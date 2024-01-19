@@ -9,13 +9,13 @@
 
 class GameOfLife
 {
+    using Pair = std::pair<int, int>;
+
 private:
     std::vector<std::vector<bool>> board;
 
-    CursorList<int> *cells_to_check;
-
+    CursorList<int> *dead_neighbours;
     CursorList<int> *alive_cells;
-    CursorList<int> *alive_next_gen;
 
     int size;
 
@@ -24,17 +24,15 @@ public:
 
     ~GameOfLife();
 
-    void SetCell(int x, int y, bool value);
-
-    bool GetCell(int x, int y);
-
     void AddCellsToCheck();
 
     int CheckNeighbours(int x, int y);
 
-    void NextGeneration();
+    void NextGeneration(); // <- fix
 
     void PrintBoard();
+
+    void Inicial_state(std::vector<Pair> &start_cells);
 };
 
 inline GameOfLife::GameOfLife(int size)
@@ -47,23 +45,13 @@ inline GameOfLife::GameOfLife(int size)
     }
 
     alive_cells = new CursorList<int>(size * size);
-    cells_to_check = new CursorList<int>(size * size);
-    alive_next_gen = new CursorList<int>(size * size);
+    dead_neighbours = new CursorList<int>(size * size);
 }
 
 inline GameOfLife::~GameOfLife()
 {
     delete alive_cells;
-}
-
-inline void GameOfLife::SetCell(int x, int y, bool value)
-{
-    board[x][y] = value;
-}
-
-inline bool GameOfLife::GetCell(int x, int y)
-{
-    return board[x][y];
+    delete dead_neighbours;
 }
 
 inline int GameOfLife::CheckNeighbours(int x, int y)
@@ -86,14 +74,123 @@ inline int GameOfLife::CheckNeighbours(int x, int y)
 
 inline void GameOfLife::AddCellsToCheck()
 {
-    cells_to_check->clear();
-    // add to cells_to_check all alive cells and their neighbours
-    for (int i = 0; i < alive_cells->size(); i++)
+
+    int idx = alive_cells->getHead();
+    int count = 0;
+
+    while (count < alive_cells->size())
     {
-        
+
+        Pair coords = alive_cells->getData(idx);
+        int x = coords.first;
+        int y = coords.second;
+
+        for (int i = std::max(0, x - 1); i <= std::min(x + 1, size - 1); i++)
+        {
+            for (int j = std::max(0, y - 1); j <= std::min(y + 1, size - 1); j++)
+            {
+                if (i == x && j == y)
+                    continue;
+                if (dead_neighbours->find(Pair(i, j)) == -1 && !board[i][j])
+                {
+                    dead_neighbours->push_back(Pair(i, j));
+                }
+            }
+        }
+
+        idx = alive_cells->getNext(idx);
+        ++count;
     }
 }
 
+inline void GameOfLife::NextGeneration()
+{
 
+    AddCellsToCheck();
+
+    std::vector<Pair> to_remove;
+    std::vector<Pair> to_add;
+
+    int idx = dead_neighbours->getHead();
+    int count = 0;
+
+    while (count < dead_neighbours->size())
+    {
+        Pair coords = dead_neighbours->getData(idx);
+        int x = coords.first;
+        int y = coords.second;
+
+        int neighbours = CheckNeighbours(x, y);
+        if (neighbours == 3)
+        {
+            alive_cells->push_back(coords);
+            to_add.push_back(coords);
+        }
+
+        idx = dead_neighbours->getNext(idx);
+        ++count;
+    }
+
+    count = 0;
+    idx = alive_cells->getHead();
+
+
+    while (count < alive_cells->size())
+    {
+        Pair coords = alive_cells->getData(idx);
+        int x = coords.first;
+        int y = coords.second;
+
+        int neighbours = CheckNeighbours(x, y);
+        if (neighbours < 2 || neighbours > 3)
+        {
+            alive_cells->remove(coords);
+            to_remove.push_back(coords);
+        }
+
+        idx = alive_cells->getNext(idx);
+        ++count;
+    }
+
+
+    int v_size = to_remove.size();
+    for (int i = 0; i < v_size; i++)
+    {
+        board[to_remove[i].first][to_remove[i].second] = false;
+    }
+
+    v_size = to_add.size();
+    for (int i = 0; i < v_size; i++)
+    {
+        board[to_add[i].first][to_add[i].second] = true;
+    }
+
+    dead_neighbours->clear();
+}
+
+inline void GameOfLife::PrintBoard()
+{
+    std::cout << "######" << std::endl;
+    for (int i = 0; i < size; i++)
+    {
+        std::cout << "|";
+        for (int j = 0; j < size; j++)
+        {
+            std::cout << (board[i][j] ? "X" : " ") << "|";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "######" << std::endl;
+}
+
+inline void GameOfLife::Inicial_state(std::vector<Pair> &start_cells)
+{
+    int v_size = start_cells.size();
+    for (int i = 0; i < v_size; i++)
+    {
+        alive_cells->push_back(start_cells[i]);
+        board[start_cells[i].first][start_cells[i].second] = true;
+    }
+}
 
 #endif // GAMEOFLIFE_HPP
