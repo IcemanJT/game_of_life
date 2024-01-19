@@ -181,7 +181,6 @@ void CursorList<T>::erase(int i)
         deallocate(i);
         return;
     }
-
 }
 
 template <class T>
@@ -227,7 +226,7 @@ void CursorList<T>::insert(int i, const Pair &coordinates)
 template <class T>
 int CursorList<T>::remove(const Pair &coordinates)
 {
-      int idx = head;
+    int idx = head;
     int count = 0;
 
     int prevIdx = -1; // To keep track of the previous index for updating the next pointers

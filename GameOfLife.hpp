@@ -134,7 +134,6 @@ inline void GameOfLife::NextGeneration()
     count = 0;
     idx = alive_cells->getHead();
 
-
     while (count < alive_cells->size())
     {
         Pair coords = alive_cells->getData(idx);
@@ -151,7 +150,6 @@ inline void GameOfLife::NextGeneration()
         idx = alive_cells->getNext(idx);
         ++count;
     }
-
 
     int v_size = to_remove.size();
     for (int i = 0; i < v_size; i++)

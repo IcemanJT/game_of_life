@@ -5,20 +5,19 @@
 
 int main()
 {
-    GameOfLife game(20);
+    GameOfLife game(40);
 
     std::vector<std::pair<int, int>> pairs = {
-     {1, 0},
-    {2, 1},
-    {0, 2},
-    {1, 2},
-    {2, 2}
-    };
+        {1, 0},
+        {2, 1},
+        {0, 2},
+        {1, 2},
+        {2, 2}};
 
     game.Inicial_state(pairs);
     game.PrintBoard();
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 100; i++)
     {
         game.NextGeneration();
         game.PrintBoard();
