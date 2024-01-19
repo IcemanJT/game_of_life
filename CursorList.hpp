@@ -1,56 +1,52 @@
- // Creator: Jeremi Toroj
-// Date: 2.01.2024
-
 #ifndef ZESTAW4_CURSORLIST_HPP
 #define ZESTAW4_CURSORLIST_HPP
 
 #include <stdexcept>
 #include <iostream>
 
-// #########################################-Declaration-#############################################################
-
 template <class T>
 class CursorList
 {
 private:
+    using Pair = std::pair<T, T>;
+
     struct Node
     {
-        T x;
-        T y;
+        Pair coordinates;
         int next;
     };
 
     Node *data;
-    int head;  // first element
-    int tail;  // last element
-    int spare; // first free cell
+    int head;
+    int tail;
+    int spare;
     int current_size;
     int capacity;
 
     void erase(int i);
 
-    template <class U>
-    void insert(int i, U &&x);
+    void insert(int i, const Pair &coordinates);
 
 public:
     explicit CursorList(int cap = 100);
 
-    template <class U>
-    void push_front(U &&x, U &&y);
-
-    template <class U>
-    void push_back(U &&x, U &&y);
+    void push_front(const Pair &coordinates);
+    void push_back(const Pair &coordinates);
 
     void pop_front();
     void pop_back();
 
-    int size();
-    bool empty();
+    int size() const;
+    bool empty() const;
     void clear();
 
-    int find(const T &x, const T &y);
+    int getHead() const { return head; }
+    Pair getData(int i) const { return data[i].coordinates; }
+    int getNext(int i) const { return data[i].next; }
 
-    int remove(const T &x, const T &y);
+    int find(const Pair &coordinates);
+
+    int remove(const Pair &coordinates);
 
     int allocate();
     void deallocate(int i);
@@ -59,8 +55,6 @@ public:
 
     ~CursorList();
 };
-
-// #########################################-Definision-#############################################################
 
 template <class T>
 CursorList<T>::CursorList(int cap) : data(new Node[cap]), head(-1), tail(-1), spare(0), current_size(0), capacity(cap)
@@ -72,15 +66,13 @@ CursorList<T>::CursorList(int cap) : data(new Node[cap]), head(-1), tail(-1), sp
         ++i;
     }
 
-    // creating two lists: spare and data
     data[capacity - 1].next = -1;
 }
 
 template <class T>
-template <class U>
-void CursorList<T>::push_front(U &&x, U &&y)
+void CursorList<T>::push_front(const Pair &coordinates)
 {
-    insert(head, std::forward<U>(x, y));
+    insert(head, coordinates);
 }
 
 template <class T>
@@ -90,10 +82,9 @@ void CursorList<T>::pop_front()
 }
 
 template <class T>
-template <class U>
-void CursorList<T>::push_back(U &&x, U &&y)
+void CursorList<T>::push_back(const Pair &coordinates)
 {
-    insert(spare, std::forward<U>(x, y));
+    insert(spare, coordinates);
 }
 
 template <class T>
@@ -103,13 +94,13 @@ void CursorList<T>::pop_back()
 }
 
 template <class T>
-int CursorList<T>::size()
+int CursorList<T>::size() const
 {
     return current_size;
 }
 
 template <class T>
-bool CursorList<T>::empty()
+bool CursorList<T>::empty() const
 {
     return current_size == 0;
 }
@@ -123,17 +114,23 @@ void CursorList<T>::clear()
     spare = 0;
     delete[] data;
     data = new Node[capacity];
+    int i = 0;
+    while (i < capacity)
+    {
+        data[i].next = i + 1;
+        ++i;
+    }
 }
 
 template <class T>
-int CursorList<T>::find(const T &x, const T &y)
+int CursorList<T>::find(const Pair &coordinates)
 {
     int idx = head;
     int count = 0;
 
     while (count < size())
     {
-        if (data[idx].x == x && data[idx].y == y)
+        if (data[idx].coordinates == coordinates)
         {
             return idx;
         }
@@ -157,14 +154,14 @@ void CursorList<T>::erase(int i)
 
     if (size() == 0)
     {
-        element = data[head].data;
+        element = i;
         deallocate(i);
         return;
     }
 
     if (i == head)
     {
-        element = data[head].data;
+        element = i;
         head = data[head].next;
         deallocate(i);
         return;
@@ -172,7 +169,7 @@ void CursorList<T>::erase(int i)
 
     if (i == tail)
     {
-        element = data[tail].data;
+        element = i;
 
         int idx = head;
         while (data[idx].next != tail)
@@ -185,12 +182,10 @@ void CursorList<T>::erase(int i)
         return;
     }
 
-    throw std::runtime_error("Something went wrong.");
 }
 
 template <class T>
-template <class U>
-void CursorList<T>::insert(int i, U &&x)
+void CursorList<T>::insert(int i, const Pair &coordinates)
 {
     if (size() == capacity)
     {
@@ -202,7 +197,7 @@ void CursorList<T>::insert(int i, U &&x)
     if (size() == 1)
     {
         int newIdx = allocate();
-        data[newIdx].data = std::forward<U>(x);
+        data[newIdx].coordinates = coordinates;
         head = tail = newIdx;
         data[tail].next = -1;
 
@@ -211,7 +206,7 @@ void CursorList<T>::insert(int i, U &&x)
     else if (i == head)
     {
         int newIdx = allocate();
-        data[newIdx].data = std::forward<U>(x);
+        data[newIdx].coordinates = coordinates;
         data[newIdx].next = head;
         head = newIdx;
 
@@ -220,7 +215,7 @@ void CursorList<T>::insert(int i, U &&x)
     else if (i == spare)
     {
         int newIdx = allocate();
-        data[newIdx].data = std::forward<U>(x);
+        data[newIdx].coordinates = coordinates;
         data[tail].next = newIdx;
         tail = newIdx;
         data[tail].next = -1;
@@ -230,15 +225,35 @@ void CursorList<T>::insert(int i, U &&x)
 }
 
 template <class T>
-int CursorList<T>::remove(const T &x, const T &y)
+int CursorList<T>::remove(const Pair &coordinates)
 {
-    for (int idx = 0; idx < size(); ++idx)
+      int idx = head;
+    int count = 0;
+
+    int prevIdx = -1; // To keep track of the previous index for updating the next pointers
+
+    while (count < size())
     {
-        if (data[idx].x == x && data[idx].y == y)
+        if (data[idx].coordinates == coordinates)
         {
-            erase(idx);
-            return 0;
+            // Custom removal algorithm here
+            if (prevIdx == -1)
+            {
+                head = data[idx].next; // Update head if removing the first element
+            }
+            else
+            {
+                data[prevIdx].next = data[idx].next; // Update the next pointer of the previous element
+            }
+
+            // Optionally, you can perform cleanup or deallocation here
+
+            return idx;
         }
+
+        prevIdx = idx;
+        idx = data[idx].next;
+        ++count;
     }
 
     return -1;
@@ -267,6 +282,14 @@ void CursorList<T>::printList()
         std::cout << "List is empty." << std::endl;
         return;
     }
+
+    int idx = head;
+    while (idx != -1)
+    {
+        std::cout << "(" << data[idx].coordinates.first << ", " << data[idx].coordinates.second << ") ";
+        idx = data[idx].next;
+    }
+    std::cout << std::endl;
 }
 
 template <class T>
