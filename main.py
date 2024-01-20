@@ -22,7 +22,7 @@ def compile_and_run_cpp(size, start_pairs_file):
 def draw_board(screen, lines):
     for y, line in enumerate(lines):
         for x, cell in enumerate(line.strip()):
-            color = (255, 255, 255) if cell == 'X' else (0, 0, 0)
+            color = (255, 105, 180) if cell == 'X' else (0, 0, 0)
             pygame.draw.rect(screen, color, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
 def main():
