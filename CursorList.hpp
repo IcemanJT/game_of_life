@@ -228,25 +228,24 @@ int CursorList<T>::remove(const Pair &coordinates)
 {
     int idx = head;
     int count = 0;
+    
 
-    int prevIdx = -1; // To keep track of the previous index for updating the next pointers
+    int prevIdx = -1;
 
     while (count < size())
     {
         if (data[idx].coordinates == coordinates)
         {
-            // Custom removal algorithm here
             if (prevIdx == -1)
             {
-                head = data[idx].next; // Update head if removing the first element
+                head = data[idx].next;
             }
             else
             {
-                data[prevIdx].next = data[idx].next; // Update the next pointer of the previous element
+                data[prevIdx].next = data[idx].next;
             }
 
-            // Optionally, you can perform cleanup or deallocation here
-
+            current_size--;
             return idx;
         }
 
