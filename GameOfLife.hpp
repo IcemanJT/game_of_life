@@ -192,7 +192,7 @@ inline std::string GameOfLife::GetBoardAsString() const
     {
         for (int j = 0; j < size; ++j)
         {
-            result += (board[i][j] ? 'X' : ' ');
+            result += (board[i][j] ? 'X' : '.');
         }
         result += '\n';
     }
