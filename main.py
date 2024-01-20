@@ -3,7 +3,7 @@ from time import sleep
 import pygame
 
 BOARD_SIZE = 50
-START_PAIRS = "custom_points/breeder.txt"
+START_PAIRS = "custom_points/pulsar.txt"
 CELL_SIZE = 10
 FPS = 10
 
