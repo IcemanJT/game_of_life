@@ -1,46 +1,54 @@
 // Creator: Jeremi Toroj
 // Date: 19.01.2024
 
+
+#include <iostream>
 #include "GameOfLife.hpp"
+#include <thread>
+#include <chrono>
+#include <fstream>
 
-int main()
+int main(int argc, char const *argv[])
 {
-    GameOfLife game(40);
-
-    std::vector<std::pair<int, int>> start_pairs = {
-        {0, 0}, {0, 1}, {1, 0}, {1, 1}, // Initial seed
-        {9, 0},
-        {9, 1},
-        {9, 2},
-        {10, 2},
-        {11, 1},
-        {11, 2},
-        {11, 3}, // Blinker 1
-        {20, 0},
-        {20, 1},
-        {20, 2},
-        {21, 2},
-        {22, 1},
-        {22, 2},
-        {22, 3}, // Blinker 2
-        {31, 0},
-        {31, 1},
-        {31, 2},
-        {32, 2},
-        {33, 1},
-        {33, 2},
-        {33, 3} // Blinker 3
-        // Add more blinkers to extend the breeder if needed
-    };
-
-    game.Initial_state(start_pairs);
-    game.PrintBoard();
-
-    for (int i = 0; i < 10; i++)
+    if (argc != 3)
     {
-        game.NextGeneration();
-        game.PrintBoard();
+        std::cout << "Usage: " << argv[0] << " <size>" << " <starts_pairs_file>" << std::endl;
+        return 1;
     }
+
+    GameOfLife game(std::stoi(argv[1]));
+
+    std::vector<std::pair<int, int>> start_cells;
+
+    std::ifstream file(argv[2]);
+
+    if (!file.is_open())
+    {
+        std::cout << "File not found" << std::endl;
+        return 1;
+    }
+
+    int n_pairs;
+    file >> n_pairs;
+    int x, y;
+    while(n_pairs--)
+    {
+        file >> x >> y;
+        start_cells.push_back(std::make_pair(x, y));
+    }
+
+
+    bool running = true;
+
+    while (running)
+    {
+        std::cout << game.GetBoardAsString() << std::endl;
+        game.NextGeneration();
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+    
+
+
 
     return 0;
 }
