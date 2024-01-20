@@ -2,10 +2,10 @@ import subprocess
 from time import sleep
 import pygame
 
-BOARD_SIZE = 40
-START_PAIRS = "custom_points/eaters.txt"
+BOARD_SIZE = 50
+START_PAIRS = "custom_points/breeder.txt"
 CELL_SIZE = 10
-FPS = 2
+FPS = 10
 
 def compile_and_run_cpp(size, start_pairs_file):
     cpp_program = "GameOfLife"
@@ -28,6 +28,8 @@ def draw_board(screen, lines):
 def main():
     gen = 0
     run = False
+    prev_state = []
+    lines = []
     try:
         pygame.init()
         screen = pygame.display.set_mode((BOARD_SIZE * CELL_SIZE, BOARD_SIZE * CELL_SIZE))
@@ -57,6 +59,8 @@ def main():
                         draw_board(screen, lines)
                         pygame.display.set_caption(f"Game of Life - Generation {gen}")
                         pygame.display.flip()
+                        cpp_process.stdin.write("next\n")
+                        cpp_process.stdin.flush()
                     elif event.key == pygame.K_SPACE:
                         run = True
 
@@ -84,15 +88,21 @@ def main():
                 gen += 1
                 cpp_process.stdin.flush()
 
+                prev_state = lines.copy()
                 lines = []
                 for i in range(BOARD_SIZE+1):
                     line = cpp_process.stdout.readline()
                     lines.append(line)
+                
+                if prev_state == lines:
+                    run = False
 
                 draw_board(screen, lines)
                 pygame.display.set_caption(f"Game of Life - Generation {gen}")
                 pygame.display.flip()
                 
+                cpp_process.stdin.write("next\n")
+                cpp_process.stdin.flush()
                 clock.tick(FPS)
 
     except KeyboardInterrupt:

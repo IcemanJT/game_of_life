@@ -46,9 +46,13 @@ int main(int argc, char const *argv[])
         if (action == "board")
         {
             std::cout << game.GetBoardAsString() << std::endl;
+        }
+        else if (action == "next")
+        {
             game.NextGeneration();
         }
-        else{
+        else
+        {
             std::cout << "Unknows" << std::endl;
         }
     }
