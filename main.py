@@ -3,7 +3,7 @@ from time import sleep
 import pygame
 
 BOARD_SIZE = 40
-START_PAIRS = "pairs.txt"
+START_PAIRS = "custom_points/eaters.txt"
 CELL_SIZE = 10
 FPS = 2
 
@@ -25,42 +25,75 @@ def draw_board(screen, lines):
             color = (255, 255, 255) if cell == 'X' else (0, 0, 0)
             pygame.draw.rect(screen, color, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
-
 def main():
     gen = 0
+    run = False
     try:
-        
         pygame.init()
         screen = pygame.display.set_mode((BOARD_SIZE * CELL_SIZE, BOARD_SIZE * CELL_SIZE))
-        pygame.display.set_caption("Game of Life Visualization")
+        pygame.display.set_caption(f"Game of Life - Generation {gen}")
 
         cpp_process = compile_and_run_cpp(BOARD_SIZE, START_PAIRS)
         
         clock = pygame.time.Clock()
 
-        while True:
+        while True:        
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     cpp_process.kill()
                     return
-            
-            cpp_process.stdin.write("board\n")
-            cpp_process.stdin.flush()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_n:
+                        cpp_process.stdin.write("board\n")
+                        gen += 1
+                        cpp_process.stdin.flush()
 
-            # Read the board state from the C++ program
-            lines = []
-            for i in range(BOARD_SIZE+1):
-                line = cpp_process.stdout.readline()
-                lines.append(line)
+                        lines = []
+                        for i in range(BOARD_SIZE+1):
+                            line = cpp_process.stdout.readline()
+                            lines.append(line)
 
-            draw_board(screen, lines)
-            pygame.display.flip()
-            
-            cpp_process.stdin.write("next\n")
-            gen += 1
-            
-            clock.tick(FPS)
+                        draw_board(screen, lines)
+                        pygame.display.set_caption(f"Game of Life - Generation {gen}")
+                        pygame.display.flip()
+                    elif event.key == pygame.K_SPACE:
+                        run = True
+
+                    elif event.key == pygame.K_ESCAPE:
+                        pygame.quit()
+                        cpp_process.kill()
+                        return
+
+            # while that runs when space is pressed
+            while run:
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_SPACE:
+                            run = False
+                        elif event.key == pygame.K_ESCAPE:
+                            pygame.quit()
+                            cpp_process.kill()
+                            return
+                    elif event.type == pygame.QUIT:
+                        pygame.quit()
+                        cpp_process.kill()
+                        return
+
+                cpp_process.stdin.write("board\n")
+                gen += 1
+                cpp_process.stdin.flush()
+
+                lines = []
+                for i in range(BOARD_SIZE+1):
+                    line = cpp_process.stdout.readline()
+                    lines.append(line)
+
+                draw_board(screen, lines)
+                pygame.display.set_caption(f"Game of Life - Generation {gen}")
+                pygame.display.flip()
+                
+                clock.tick(FPS)
 
     except KeyboardInterrupt:
         print("Visualization script terminated.")
