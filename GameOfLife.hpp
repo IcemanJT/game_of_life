@@ -35,6 +35,8 @@ public:
     void Initial_state(std::vector<Pair> &start_cells);
 
     std::vector<std::vector<bool>> getBoard() { return board; }
+
+    std::string GetBoardAsString() const;
 };
 
 inline GameOfLife::GameOfLife(int size)
@@ -181,6 +183,20 @@ inline void GameOfLife::PrintBoard()
         std::cout << std::endl;
     }
     std::cout << "######" << std::endl;
+}
+
+inline std::string GameOfLife::GetBoardAsString() const
+{
+    std::string result;
+    for (int i = 0; i < size; ++i)
+    {
+        for (int j = 0; j < size; ++j)
+        {
+            result += (board[i][j] ? 'X' : ' ');
+        }
+        result += '\n';
+    }
+    return result;
 }
 
 inline void GameOfLife::Initial_state(std::vector<Pair> &start_cells)
