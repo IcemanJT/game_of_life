@@ -37,18 +37,15 @@ int main(int argc, char const *argv[])
         start_cells.push_back(std::make_pair(x, y));
     }
 
-
+    game.Initial_state(start_cells);
     bool running = true;
 
     while (running)
     {
         std::cout << game.GetBoardAsString() << std::endl;
         game.NextGeneration();
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
     
-
-
-
     return 0;
 }
