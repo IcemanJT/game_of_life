@@ -78,7 +78,7 @@ inline int GameOfLife::CheckNeighbours(int x, int y)
 
 inline void GameOfLife::AddCellsToCheck()
 {
-
+    dead_neighbours->clear();
     int idx = alive_cells->getHead();
     int count = 0;
 
@@ -109,34 +109,14 @@ inline void GameOfLife::AddCellsToCheck()
 
 inline void GameOfLife::NextGeneration()
 {
-
     AddCellsToCheck();
+
+    int idx = alive_cells->getHead();
+    int count = 0;
+    
 
     std::vector<Pair> to_remove;
     std::vector<Pair> to_add;
-
-    int idx = dead_neighbours->getHead();
-    int count = 0;
-
-    while (count < dead_neighbours->size())
-    {
-        Pair coords = dead_neighbours->getData(idx);
-        int x = coords.first;
-        int y = coords.second;
-
-        int neighbours = CheckNeighbours(x, y);
-        if (neighbours == 3)
-        {
-            alive_cells->push_back(coords);
-            to_add.push_back(coords);
-        }
-
-        idx = dead_neighbours->getNext(idx);
-        ++count;
-    }
-
-    count = 0;
-    idx = alive_cells->getHead();
 
     while (count < alive_cells->size())
     {
@@ -147,7 +127,6 @@ inline void GameOfLife::NextGeneration()
         int neighbours = CheckNeighbours(x, y);
         if (neighbours < 2 || neighbours > 3)
         {
-            alive_cells->remove(coords);
             to_remove.push_back(coords);
         }
 
@@ -155,19 +134,39 @@ inline void GameOfLife::NextGeneration()
         ++count;
     }
 
-    int v_size = to_remove.size();
-    for (int i = 0; i < v_size; i++)
+    count = 0;
+    idx = dead_neighbours->getHead();
+
+    while (count < dead_neighbours->size())
     {
-        board[to_remove[i].first][to_remove[i].second] = false;
+        Pair coords = dead_neighbours->getData(idx);
+        int x = coords.first;
+        int y = coords.second;
+
+        int neighbours = CheckNeighbours(x, y);
+        if (neighbours == 3)
+        {
+            to_add.push_back(coords);
+        }
+
+        idx = dead_neighbours->getNext(idx);
+        ++count;
     }
 
-    v_size = to_add.size();
-    for (int i = 0; i < v_size; i++)
-    {
-        board[to_add[i].first][to_add[i].second] = true;
-    }
 
-    dead_neighbours->clear();
+    for(auto &coords : to_add)
+    {
+        alive_cells->push_back(coords);
+        board[coords.first][coords.second] = true;
+    }
+    for(auto &coords : to_remove)
+    {
+        alive_cells->remove(coords);
+        board[coords.first][coords.second] = false;
+    }
+    
+    to_add.clear();
+    to_remove.clear();
 }
 
 inline void GameOfLife::PrintBoard()

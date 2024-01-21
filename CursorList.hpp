@@ -120,6 +120,7 @@ void CursorList<T>::clear()
         data[i].next = i + 1;
         ++i;
     }
+    data[capacity - 1].next = -1;
 }
 
 template <class T>
@@ -245,6 +246,8 @@ int CursorList<T>::remove(const Pair &coordinates)
                 data[prevIdx].next = data[idx].next;
             }
 
+            data[idx].coordinates = Pair(-1, -1);
+            deallocate(idx);
             current_size--;
             return idx;
         }

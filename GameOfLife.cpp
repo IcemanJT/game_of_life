@@ -46,6 +46,7 @@ int main(int argc, char const *argv[])
         if (action == "board")
         {
             std::cout << game.GetBoardAsString() << std::endl;
+            std::cout.flush();
         }
         else if (action == "next")
         {
