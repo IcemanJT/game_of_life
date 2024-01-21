@@ -3,28 +3,31 @@ from time import sleep
 import pygame
 
 BOARD_SIZE = 100
-START_PAIRS = "custom_points/acorn.txt" # fix deleting cells
+START_PAIRS = "custom_points/glider_gun.txt" 
 CELL_SIZE = 8
-FPS = 60
+FPS = 30
 
 def compile_and_run_cpp(size, start_pairs_file):
     cpp_program = "GameOfLife"
 
+    # comiles the cpp program
     compile_command = ["g++", cpp_program + ".cpp", "-o", cpp_program]
     subprocess.run(compile_command, check=True)
 
-    # Run the compiled C++ program
+    # runs the cpp program as a subprocess
     run_command = ["./"+cpp_program, str(size), start_pairs_file]
     process = subprocess.Popen(run_command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True)
 
     return process
 
+# draws the board from lines reaf from pipe
 def draw_board(screen, lines):
     for y, line in enumerate(lines):
         for x, cell in enumerate(line.strip()):
             color = (255, 105, 180) if cell == 'X' else (0, 0, 0)
             pygame.draw.rect(screen, color, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
+# main function
 def main():
     gen = 0
     run = False
@@ -41,10 +44,12 @@ def main():
 
         while True:        
             for event in pygame.event.get():
+                # when x is clicked on the window
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     cpp_process.kill()
                     return
+                #key bindings
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_n:
                         cpp_process.stdin.write("board\n")
