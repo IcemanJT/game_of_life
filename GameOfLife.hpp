@@ -24,18 +24,21 @@ public:
 
     ~GameOfLife();
 
+    // adds dead neighbours of alive cells to list of cells to check (dead_neighbours)
     void AddCellsToCheck();
 
+    // checks how many alive neighbours has cell with given coordinates
     int CheckNeighbours(int x, int y);
 
-    void NextGeneration(); // <- fix
+    // calculates next generation from alive cells and dead neighbours
+    void NextGeneration(); 
 
     void PrintBoard();
 
+    // populates board with set of start cells
     void Initial_state(std::vector<Pair> &start_cells);
 
-    std::vector<std::vector<bool>> getBoard() { return board; }
-
+    // returns board as string for python script
     std::string GetBoardAsString() const;
 };
 
