@@ -4,7 +4,8 @@
 **Date:** 21.02.2024
 
 ## Requirements
-
+The program was written on Linux Ubuntu 22.04, so it should work on macOS.
+If you are using windows, running it might need different approach.
 To run the program successfully, ensure that you have the following prerequisites:
 
 - Clone or download this repository.
