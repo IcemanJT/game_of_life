@@ -2,10 +2,10 @@ import subprocess
 from time import sleep
 import pygame
 
-BOARD_SIZE = 50
-START_PAIRS = "custom_points/pulsar.txt" # fix deleting cells
+BOARD_SIZE = 100
+START_PAIRS = "custom_points/acorn.txt" # fix deleting cells
 CELL_SIZE = 8
-FPS = 10
+FPS = 60
 
 def compile_and_run_cpp(size, start_pairs_file):
     cpp_program = "GameOfLife"
@@ -51,7 +51,7 @@ def main():
                         gen += 1
                         cpp_process.stdin.flush()
                         
-                        sleep(0.1)
+                        
 
                         lines = []
                         for i in range(BOARD_SIZE+1):
@@ -90,7 +90,7 @@ def main():
                 gen += 1
                 cpp_process.stdin.flush()
 
-                sleep(0.1)
+                
 
                 prev_state = lines.copy()
                 lines = []
